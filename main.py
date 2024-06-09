@@ -1,4 +1,7 @@
+import math
+
 from queue import Queue
+
 
 class Graph:
     node_factory = dict
@@ -32,6 +35,10 @@ class Graph:
         else:
             self._node[node_to_add].update(attr)
 
+    def get_node(self, node):
+        if node not in self._node:
+            raise Exception(f"Node {node} not in graph!")
+        return {node: self._node[node]}
 
     def remove_node(self, node_to_remove):
         # Null check
@@ -86,6 +93,11 @@ class Graph:
 
     # I could probably add an "has_edge" method here...
 
+    def set_node_attr(self, node, attr, value):
+        if node not in self._node:
+            raise Exception("Node not in graph!")
+        self._node[node].update({attr: value})
+
     def remove_node_attr(self, attr):
         for u in self._node:
             if attr in self._node[u]:
@@ -94,10 +106,6 @@ class Graph:
     def clear_node_attrs(self):
         for u in self._node:
             self._node[u].clear()
-
-    # Return a list of all attrs. Ugly, needs work.
-    # def get_node_attrs(self, node):
-    #     print([str(y.keys()) for x,y in self._node.items()])
 
     def remove_edge_attr(self, attr):
         for u in self._adj:
@@ -119,18 +127,78 @@ class Graph:
         return self._adj
 
 
+def breadth_first_search(G, s):
+    # Reset the node attributes to prime the search.
+    for key, value in G.nodes.items():
+        G.set_node_attr(key, "colour", "white")
+        G.set_node_attr(key, "d", math.inf)
+        G.set_node_attr(key, "pi", None)
+
+    # Set the attributes for the source node.
+    G.set_node_attr(s, "colour", "grey")
+    G.set_node_attr(s, "d", 0)
+    G.set_node_attr(s, "pi", None)
+
+    # Create frontier and push source node onto it.
+    frontier = Queue()
+    frontier.put(s)
+
+    # Perform the search.
+    while not frontier.empty():
+        u = frontier.get()
+        neighbours = G.edges[u]
+        for neighbour in neighbours:
+            n = neighbour
+            if G.nodes[n]["colour"] == "white":
+                G.nodes[n]["colour"] = "grey"
+                G.nodes[n]["d"] = G.nodes[u]["d"] + 1
+                G.nodes[n]["pi"] = u
+                frontier.put(n)
+        G.nodes[u]["colour"] = "black"
+
+
+def print_path(G, s, t, path):
+    if t == s:
+        path.append(s)
+    elif G.nodes[t]["pi"] is None:
+        print("No path found!")
+    else:
+        print_path(G, s, G.nodes[t]["pi"], path)
+        path.append(t)
+
+
 def main():
     G = Graph()
-    alphabet = "abcdefghijklmnopqrstuvwxyz"
-    [G.add_node(alphabet[x], colour="grey") for x in range(5)]
+    graph_nodes = "rstuvwxyz"  # From CLRS, s is source.
+    [G.add_node(graph_nodes[x]) for x in range(len(graph_nodes))]
 
-    G.add_edge("a", "b", weight=1)
-    G.add_edge("a", "c", weight=3)
+    # This is not efficient, but it's what we've got.
+    G.add_edge("s", "r")
+    G.add_edge("s", "v")
+    G.add_edge("s", "u")
 
-    G.nodes["a"]["colour"] = "red"
-    print(G.nodes)
+    G.add_edge("t", "r")
+    G.add_edge("t", "u")
+
+    G.add_edge("y", "u")
+    G.add_edge("y", "v")
+    G.add_edge("y", "x")
+
+    G.add_edge("w", "r")
+    G.add_edge("w", "v")
+    G.add_edge("w", "x")
+    G.add_edge("w", "z")
+
+    G.add_edge("x", "z")
+
+    breadth_first_search(G, "s")
+
+    path = []
+    print_path(G, "s", "z", path)
+    print(path)
+    # print(G.nodes["z"]["pi"])
+
+
 
 if __name__ == "__main__":
     main()
-
-
