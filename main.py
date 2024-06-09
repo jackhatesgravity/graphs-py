@@ -21,8 +21,8 @@ def main():
     G.add_edge("w", "z")
     G.add_edge("x", "z")
 
-    path = breadth_first_search(G, "s", "z")
-    print(path)
+    G.randomise_weights()
+    print(G.edges)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 import math
+import random
 from typing import Union, TypedDict, TypeAlias, List, Dict
 
 from queue import Queue
@@ -112,6 +113,15 @@ class Graph:
         for u in self._adj:
             for v in self._adj[u]:
                 self._adj[u][v].clear()
+
+    # I don't love how we're double accessing each edge in this.
+    # Feels like a consequence of earlier decisions.
+    def randomise_weights(self) -> None:
+        for outer in self._adj:
+            for inner in self._adj[outer]:
+                random_num = random.randint(1, 10)
+                self._adj[outer][inner] = random_num
+                self._adj[inner][outer] = random_num
 
     # Can we be more specific with the return type of these properties?
     @property
