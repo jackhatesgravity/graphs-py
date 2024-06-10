@@ -3,6 +3,7 @@ import random
 from typing import Union, TypedDict, TypeAlias, List, Dict
 
 from queue import Queue
+from stack import Stack
 
 
 class Attribute(TypedDict):
@@ -148,6 +149,40 @@ def breadth_first_search(graph: Graph, source: Node, sink: Node) -> Path:
 
     # Create frontier and push source node onto it.
     frontier = Queue()
+    frontier.put(source)
+
+    # Perform the search.
+    while not frontier.empty():
+        u = frontier.get()
+        neighbours = graph.edges[u]
+        for neighbour in neighbours:
+            n = neighbour
+            if graph.nodes[n]["colour"] == "white":
+                graph.nodes[n]["colour"] = "grey"
+                graph.nodes[n]["d"] = graph.nodes[u]["d"] + 1
+                graph.nodes[n]["pi"] = u
+                frontier.put(n)
+        graph.nodes[u]["colour"] = "black"
+
+    path = []
+    reconstruct_path(graph, source, sink, path)
+    return path
+
+
+def depth_first_search(graph: Graph, source: Node, sink: Node) -> Path:
+    # Reset the node attributes to prime the search.
+    for key, value in graph.nodes.items():
+        graph.set_node_attr(key, colour="white")
+        graph.set_node_attr(key, d=math.inf)
+        graph.set_node_attr(key, pi=None)
+
+    # Set the attributes for the source node.
+    graph.set_node_attr(source, colour="grey")
+    graph.set_node_attr(source, d=0)
+    graph.set_node_attr(source, pi=None)
+
+    # Create frontier and push source node onto it.
+    frontier = Stack()
     frontier.put(source)
 
     # Perform the search.

@@ -1,4 +1,4 @@
-from graph import Graph, breadth_first_search
+from graph import Graph, breadth_first_search, depth_first_search
 
 
 def main():
@@ -21,8 +21,12 @@ def main():
     G.add_edge("w", "z")
     G.add_edge("x", "z")
 
-    G.randomise_weights()
-    print(G.edges)
+    path = breadth_first_search(G, "s", "z")
+    print(f"BFS: {path}")
+    path.clear()
+
+    path = depth_first_search(G, "s", "z")
+    print(f"DFS: {path}")
 
 
 if __name__ == "__main__":
